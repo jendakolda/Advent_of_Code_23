@@ -1,5 +1,4 @@
 import numpy as np
-from pprint import pprint
 from itertools import product
 
 
@@ -8,18 +7,17 @@ def get_adjacent(part):
     zacatek = sloupec - 1 if sloupec > 0 else sloupec
     konec = sloupec + len(number) + 1 if sloupec + len(number) < sloupce else sloupec + len(number)
 
-    odkud = radek - 1 if radek > 0 else radek
-    kam = radek + 1 if radek < radky else radek
-    adj = list(product(range(odkud, kam+1), range(zacatek, konec+1)))
-    original = tuple((radek, i) for i in range(sloupec, sloupec + len(number) + 1))
+    odkud = radek if radek == 0 else radek - 1
+    kam = radek + 2 if radek < radky - 1 else radek + 1
+    adj = list(product(range(odkud, kam), range(zacatek, konec)))
+    original = tuple((radek, i) for i in range(sloupec, sloupec + len(number)))
     orig = set(original)
     adjacent = [x for x in adj if x not in orig]
-    return adjacent
+    return int(number), adjacent
 
 
 with open('src/input3.txt', 'r') as source:
     plan = np.array([[j for j in i] for i in source.read().splitlines()])
-directions = ((-1, 0), (0, -1), (1, 0), (0, 1))
 radky, sloupce = plan.shape
 cisla = {}
 idx = 0
@@ -35,9 +33,7 @@ for radek in range(radky):
 
 sumA = 0
 for k, part in cisla.items():
-    adjacent = get_adjacent(part)
-    print('adj:', adjacent)
-    if any(plan[i[0], i[1]] in ['!@#&()–[{}]:;\',?/*`~$^+=<>“'] for i in adjacent):
-        sumA += int(k)
-
+    number, adjacent = get_adjacent(part)
+    if any((plan[i[0], i[1]] != '.' and not plan[i[0], i[1]].isdigit())for i in adjacent):
+        sumA += number
 print('sumA:', sumA)
